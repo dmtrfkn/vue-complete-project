@@ -9,7 +9,8 @@
     <Modal v-model:show="modalVisible"><PostForm @create="createPost" /></Modal>
     <PostList v-if="!isPostsLoading" @delete="deletePost" :posts="sortedAndSearchedPosts" />
     <div v-else>Идет загрузка...</div>
-    <PageList v-model="totalPages" :page="page" @updatePage="changePage"></PageList>
+    <div ref="observer" class="observer"></div>
+    <!-- <PageList v-model="totalPages" :page="page" @updatePage="changePage"></PageList> -->
   </div>
 </template>
 
@@ -69,12 +70,40 @@ export default {
         this.isPostsLoading = false;
       }
     },
-    changePage(currentPage) {
-      this.page = currentPage;
+    async loadMorePosts() {
+      try {
+        this.page += 1;
+        const response = await axios.get(`https://jsonplaceholder.typicode.com/posts`, {
+          params: {
+            _limit: this.limit,
+            _page: this.page,
+          },
+        });
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
+        this.posts = [...this.posts, ...response.data];
+      } catch (error) {
+        // console.log(error);
+      }
     },
+    // changePage(currentPage) {
+    //   this.page = currentPage;
+    // },
   },
   mounted() {
     this.fetchPosts();
+    let options = {
+      rootMargin: '0px',
+      threshold: 1.0,
+    };
+
+    let callback = (entries, observer) => {
+      if (entries[0].isIntersecting && this.page < this.totalPages) {
+        this.loadMorePosts();
+      }
+    };
+
+    let observer = new IntersectionObserver(callback, options);
+    observer.observe(this.$refs.observer);
   },
   computed: {
     sortedPosts() {
@@ -89,9 +118,9 @@ export default {
     },
   },
   watch: {
-    page() {
-      this.fetchPosts();
-    },
+    // page() {
+    //   this.fetchPosts();
+    // },
   },
 };
 </script>
@@ -113,5 +142,9 @@ export default {
   display: flex;
   margin: 15px 0;
   justify-content: space-between;
+}
+.observer {
+  height: 30px;
+  background-color: green;
 }
 </style>
