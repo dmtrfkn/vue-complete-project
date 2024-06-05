@@ -1,7 +1,12 @@
 <template>
   <div>
     <h3>Список пользователей</h3>
-    <PostItem v-for="post in posts" :post="post"></PostItem>
+    <PostItem
+      v-for="post in posts"
+      :key="post.id"
+      @delete="$emit('delete', post)"
+      :post="post"
+    ></PostItem>
   </div>
 </template>
 
@@ -15,6 +20,7 @@ export default {
       required: true,
     },
   },
+  methods: {},
 };
 </script>
 
