@@ -6,6 +6,7 @@
       <div><strong>Описание:</strong> {{ post.body }}</div>
     </div>
     <div class="post__btns">
+      <Button @click="$emit('delete', post)">Открыть</Button>
       <Button @click="$emit('delete', post)">Удалить</Button>
     </div>
   </div>
@@ -30,5 +31,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.post__btns {
+  display: flex;
+  gap: 10px;
 }
 </style>
