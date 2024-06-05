@@ -6,13 +6,15 @@
       <Button @click="showModal">Создать пост</Button>
       <Select :options="sortOptions" v-model="selectedSort"></Select>
     </div>
+    <Modal v-model:show="modalVisible"><PostForm @create="createPost" /></Modal>
     <PostList v-if="!isPostsLoading" @delete="deletePost" :posts="sortedAndSearchedPosts" />
     <div v-else>Идет загрузка...</div>
-    <Modal v-model:show="modalVisible"><PostForm @create="createPost" /></Modal>
+    <PageList v-model="totalPages" :page="page" @updatePage="changePage"></PageList>
   </div>
 </template>
 
 <script>
+import PageList from '@/components/PageList.vue';
 import PostList from '@/components/PostList.vue';
 import PostForm from '@/components/PostForm.vue';
 import axios from 'axios';
@@ -20,6 +22,7 @@ import axios from 'axios';
 export default {
   components: {
     PostForm,
+    PageList,
     PostList,
   },
   data() {
@@ -29,6 +32,9 @@ export default {
       isPostsLoading: false,
       selectedSort: '',
       searchQuery: '',
+      page: 1,
+      limit: 10,
+      totalPages: 0,
       sortOptions: [
         { value: 'title', name: 'По названию' },
         { value: 'body', name: 'По значению' },
@@ -49,13 +55,22 @@ export default {
     async fetchPosts() {
       try {
         this.isPostsLoading = true;
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        const response = await axios.get(`https://jsonplaceholder.typicode.com/posts`, {
+          params: {
+            _limit: this.limit,
+            _page: this.page,
+          },
+        });
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
         this.posts = response.data;
       } catch (error) {
         console.log(error);
       } finally {
         this.isPostsLoading = false;
       }
+    },
+    changePage(currentPage) {
+      this.page = currentPage;
     },
   },
   mounted() {
@@ -68,16 +83,16 @@ export default {
       );
     },
     sortedAndSearchedPosts() {
-      return this.sortedPosts.filter((post) => post.title.includes(this.searchQuery));
+      return this.sortedPosts.filter((post) =>
+        post.title.toLowerCase().includes(this.searchQuery.toLowerCase()),
+      );
     },
   },
-  // watch: {
-  //   selectedSort(newValue) {
-  //     this.posts.sort((post1, post2) => {
-  //       return post1[newValue]?.localeCompare(post2[newValue]);
-  //     });
-  //   },
-  // },
+  watch: {
+    page() {
+      this.fetchPosts();
+    },
+  },
 };
 </script>
 
@@ -97,7 +112,6 @@ export default {
 .app__buttons {
   display: flex;
   margin: 15px 0;
-
   justify-content: space-between;
 }
 </style>
