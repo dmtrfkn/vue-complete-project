@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="posts.length > 0">
     <h3>Список пользователей</h3>
     <PostItem
       v-for="post in posts"
@@ -8,6 +8,7 @@
       :post="post"
     ></PostItem>
   </div>
+  <div v-else><h1>Список постов пуст</h1></div>
 </template>
 
 <script>
