@@ -5,7 +5,7 @@
       <Button @click="showModal">Создать пост</Button>
       <Select :options="sortOptions" v-model="selectedSort"></Select>
     </div>
-    <PostList v-if="!isPostsLoading" @delete="deletePost" :posts="posts" />
+    <PostList v-if="!isPostsLoading" @delete="deletePost" :posts="sortedPosts" />
     <div v-else>Идет загрузка...</div>
     <Modal v-model:show="modalVisible"><PostForm @create="createPost" /></Modal>
   </div>
@@ -59,13 +59,20 @@ export default {
   mounted() {
     this.fetchPosts();
   },
-  watch: {
-    selectedSort(newValue) {
-      this.posts.sort((post1, post2) => {
-        return post1[newValue]?.localeCompare(post2[newValue]);
-      });
+  computed: {
+    sortedPosts() {
+      return [...this.posts].sort((post1, post2) =>
+        post1[this.selectedSort]?.localeCompare(post2[this.selectedSort]),
+      );
     },
   },
+  // watch: {
+  //   selectedSort(newValue) {
+  //     this.posts.sort((post1, post2) => {
+  //       return post1[newValue]?.localeCompare(post2[newValue]);
+  //     });
+  //   },
+  // },
 };
 </script>
 
