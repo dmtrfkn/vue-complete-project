@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <h1>Страница с постами</h1>
-    <Input v-model="searchQuery" placeholder="Поиск..." />
+    <Input v-focus v-model="searchQuery" placeholder="Поиск..." />
     <div class="app__buttons">
       <Button @click="showModal">Создать пост</Button>
       <Select :options="sortOptions" v-model="selectedSort"></Select>
@@ -9,7 +9,7 @@
     <Modal v-model:show="modalVisible"><PostForm @create="createPost" /></Modal>
     <PostList v-if="!isPostsLoading" @delete="deletePost" :posts="sortedAndSearchedPosts" />
     <div v-else>Идет загрузка...</div>
-    <div ref="observer" class="observer"></div>
+    <div v-intersection="loadMorePosts" class="observer"></div>
     <!-- <PageList v-model="totalPages" :page="page" @updatePage="changePage"></PageList> -->
   </div>
 </template>
@@ -91,19 +91,6 @@ export default {
   },
   mounted() {
     this.fetchPosts();
-    let options = {
-      rootMargin: '0px',
-      threshold: 1.0,
-    };
-
-    let callback = (entries, observer) => {
-      if (entries[0].isIntersecting && this.page < this.totalPages) {
-        this.loadMorePosts();
-      }
-    };
-
-    let observer = new IntersectionObserver(callback, options);
-    observer.observe(this.$refs.observer);
   },
   computed: {
     sortedPosts() {
