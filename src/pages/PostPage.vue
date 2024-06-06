@@ -1,5 +1,5 @@
 <template>
-  <div class="app">
+  <div>
     <h1>Страница с постами</h1>
     <Input v-focus v-model="searchQuery" placeholder="Поиск..." />
     <div class="app__buttons">
