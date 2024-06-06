@@ -5,6 +5,7 @@
       <Button @click="$router.push('/posts')">Посты</Button>
       <Button @click="$router.push('/about')">О сайте</Button>
       <Button @click="$router.push('/store')">store</Button>
+      <Button @click="$router.push('/composition')">composition</Button>
     </div>
   </div>
 </template>
